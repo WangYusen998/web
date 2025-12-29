@@ -6,7 +6,44 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_wtf.csrf import CSRFProtect
 from config import Config
+# 新增日志配置 - 动态拼接绝对路径（适配PythonAnywhere）
+import os
+import logging
+from logging.handlers import RotatingFileHandler
 
+# 步骤1：获取当前文件（app/__init__.py）的绝对路径
+CURRENT_FILE = os.path.abspath(__file__)
+# 步骤2：定位到项目根目录（movie_review(3)）
+PROJECT_ROOT = os.path.dirname(os.path.dirname(CURRENT_FILE))
+# 步骤3：拼接日志目录和文件的绝对路径
+LOG_DIR = os.path.join(PROJECT_ROOT, 'logs')
+LOG_FILE = os.path.join(LOG_DIR, 'admin.log')
+
+# 步骤4：确保日志目录存在（不存在则创建）
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+    os.chmod(LOG_DIR, 0o755)  # 赋予写入权限
+
+# 步骤5：配置日志（带滚动+中文支持）
+logging.basicConfig(
+    level=logging.INFO,
+    format='[%(asctime)s] [%(levelname)s] [ADMIN] %(message)s',
+    handlers=[
+        # 写入文件（绝对路径）
+        RotatingFileHandler(
+            LOG_FILE,
+            maxBytes=10*1024*1024,  # 单个日志最大10MB
+            backupCount=5,  # 保留5个备份
+            encoding='utf-8'  # 支持中文日志
+        ),
+        # 同时输出到终端（方便调试）
+        logging.StreamHandler()
+    ],
+    force=True  # 强制覆盖旧配置
+)
+
+# 测试日志（验证配置生效）
+logging.info(f"日志配置初始化成功！路径：{LOG_FILE}")
 db = SQLAlchemy()
 login = LoginManager()
 login.login_view = 'main.login'
