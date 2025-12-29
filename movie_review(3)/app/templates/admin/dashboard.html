@@ -1,0 +1,115 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard Overview</h1>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card card-users">
+        <div class="stat-info">
+            <h3>Total Users</h3>
+            <div class="value">{{ stats.total_users }}</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-users"></i>
+        </div>
+    </div>
+    <div class="stat-card card-movies">
+        <div class="stat-info">
+            <h3>Total Movies</h3>
+            <div class="value">{{ stats.total_movies }}</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-video"></i>
+        </div>
+    </div>
+    <div class="stat-card card-reviews">
+        <div class="stat-info">
+            <h3>Total Reviews</h3>
+            <div class="value">{{ stats.total_reviews }}</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-comments"></i>
+        </div>
+    </div>
+    <div class="stat-card card-new">
+        <div class="stat-info">
+            <h3>New Users Today</h3>
+            <div class="value">{{ stats.new_users_today }}</div>
+        </div>
+        <div class="stat-icon">
+            <i class="fas fa-user-plus"></i>
+        </div>
+    </div>
+</div>
+
+<div class="content-grid">
+    <!-- Recent Users -->
+    <div class="card">
+        <div class="section-header">
+            <h2 class="section-title">Recent Users</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>User</th>
+                        <th>Joined Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&color=fff&size=32" class="user-avatar-medium" alt="">
+                                <div>
+                                    <div style="font-weight: 500;">{{ user.username }}</div>
+                                    <div style="font-size: 12px; color: var(--text-muted);">{{ user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Reviews -->
+    <div class="card">
+        <div class="section-header">
+            <h2 class="section-title">Recent Reviews</h2>
+        </div>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Movie</th>
+                        <th>User</th>
+                        <th>Rating</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in recent_reviews %}
+                    <tr>
+                        <td style="font-weight: 500;">{{ review.movie.title }}</td>
+                        <td>{{ review.author.username }}</td>
+                        <td>
+                            <span class="rating-badge">
+                                <i class="fas fa-star"></i> {{ review.rating }}/5
+                            </span>
+                        </td>
+                        <td style="color: var(--text-muted);">{{ review.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

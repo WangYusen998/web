@@ -1,0 +1,113 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-title"><i class="fas fa-comment-alt text-primary me-2"></i>Review Details</h1>
+        <p class="page-subtitle">View and manage review #{{ review.id }}</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('admin.reviews_list') }}" class="btn-secondary btn-action" style="margin-right: 10px;">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <form action="{{ url_for('admin.review_delete', id=review.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this review?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn-action btn-danger">
+                <i class="fas fa-trash-alt"></i> Delete
+            </button>
+        </form>
+    </div>
+</div>
+
+<div class="review-detail-container">
+    <!-- Sidebar: User & Movie Info -->
+    <div class="info-sidebar">
+        <!-- User Card -->
+        <div class="card info-card user-card">
+            <div class="card-header-badge">
+                <i class="fas fa-user"></i> Author
+            </div>
+            <div class="card-body centered">
+                <div class="user-avatar-large">
+                     <img src="https://ui-avatars.com/api/?name={{ review.author.username }}&background=random&color=fff&size=128" alt="{{ review.author.username }}">
+                </div>
+                <div class="info-details">
+                    <h3 class="info-title">{{ review.author.username }}</h3>
+                    <p class="info-subtitle">{{ review.author.email }}</p>
+                    <div class="info-meta">
+                        <span class="meta-badge"><i class="fas fa-pen"></i> {{ review.author.reviews.count() }} reviews</span>
+                    </div>
+                    <a href="{{ url_for('admin.user_detail', id=review.author.id) }}" class="btn-outline btn-block">
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Movie Card -->
+        <div class="card info-card movie-card">
+            <div class="card-header-badge">
+                <i class="fas fa-film"></i> Movie
+            </div>
+            <div class="card-body centered">
+                <div class="movie-poster-wrapper">
+                    {% if review.movie.poster_url %}
+                    <img src="{{ review.movie.poster_url }}" alt="{{ review.movie.title }}" class="movie-poster">
+                    {% else %}
+                    <div class="movie-poster-placeholder">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="info-details">
+                    <h3 class="info-title">{{ review.movie.title }}</h3>
+                    <p class="info-subtitle">{{ review.movie.year }} • {{ review.movie.director }}</p>
+                    <div class="movie-genres">
+                        {% for genre in review.movie.genres[:3] %}
+                        <span class="genre-tag">{{ genre.name }}</span>
+                        {% endfor %}
+                    </div>
+                    <a href="{{ url_for('admin.movie_edit', id=review.movie.id) }}" class="btn-outline btn-block">
+                        View Movie
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content: Review -->
+    <div class="review-main">
+        <div class="card review-card-large">
+            <div class="review-header-large">
+                <div class="rating-display-large">
+                    <span class="rating-number">{{ review.rating }}.0</span>
+                    <div class="stars-large">
+                        {% for i in range(5) %}
+                            {% if i < review.rating %}
+                            <i class="fas fa-star" style="color: var(--warning-color);"></i>
+                            {% else %}
+                            <i class="far fa-star" style="color: #e0e0e0;"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="review-date-large">
+                    <i class="far fa-clock"></i> {{ review.created_at.strftime('%B %d, %Y at %H:%M') }}
+                </div>
+            </div>
+            
+            <div class="review-body-large">
+                <i class="fas fa-quote-left quote-icon"></i>
+                <div class="review-text-large">
+                    {{ review.content }}
+                </div>
+                <i class="fas fa-quote-right quote-icon-end"></i>
+            </div>
+
+            <div class="review-footer-large">
+                <div class="review-id">Review ID: #{{ review.id }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

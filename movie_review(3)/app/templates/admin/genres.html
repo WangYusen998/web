@@ -1,0 +1,341 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Genre Management</h1>
+</div>
+
+<div class="genre-layout">
+    <!-- Left Column: Add Genre Form -->
+    <div class="genre-sidebar">
+        <div class="card form-card">
+            <div class="card-header-custom">
+                <i class="fas fa-plus-circle"></i> Add New Genre
+            </div>
+            <div class="card-body">
+                <form method="post" class="form">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.name.label(class="form-label") }}
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-tag input-icon"></i>
+                            {{ form.name(class="form-control with-icon", placeholder="e.g. Sci-Fi") }}
+                        </div>
+                        {% for error in form.name.errors %}
+                        <span class="error-msg">{{ error }}</span>
+                        {% endfor %}
+                        <small class="form-text text-muted">Create a new category for movies.</small>
+                    </div>
+                    <div class="form-group" style="margin-top: 25px;">
+                        <button type="submit" class="btn btn-primary btn-block">
+                            <i class="fas fa-plus"></i> Add Genre
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Stats (Optional decoration) -->
+        <div class="card stat-mini-card">
+            <div class="stat-icon-wrapper">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-content">
+                <span class="stat-value">{{ genres|length }}</span>
+                <span class="stat-label">Total Genres</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column: Genres List -->
+    <div class="genre-list-container">
+        <div class="card list-card">
+            <div class="card-header-custom">
+                <i class="fas fa-list-ul"></i> Existing Genres
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;">ID</th>
+                            <th>Name</th>
+                            <th>Movies</th>
+                            <th style="width: 100px; text-align: center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for genre in genres %}
+                        <tr>
+                            <td><span class="id-badge">#{{ genre.id }}</span></td>
+                            <td>
+                                <span class="genre-badge-lg">{{ genre.name }}</span>
+                            </td>
+                            <td>
+                                <div class="movie-count">
+                                    <i class="fas fa-film"></i>
+                                    <span>{{ genre.movies.count() }}</span>
+                                </div>
+                            </td>
+                            <td style="text-align: center;">
+                                <form action="{{ url_for('admin.genre_delete', id=genre.id) }}" method="post" class="delete-form" data-confirm="Are you sure you want to delete this genre?">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="action-btn-circle delete" title="Delete Genre" {% if genre.movies.count() > 0 %}disabled{% endif %}>
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="empty-state">
+                                <div class="empty-icon"><i class="fas fa-tags"></i></div>
+                                <p>No genres found. Add one to get started!</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Layout */
+    .genre-layout {
+        display: grid;
+        grid-template-columns: 350px 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+    
+    @media (max-width: 992px) {
+        .genre-layout {
+            grid-template-columns: 1fr;
+        }
+        
+        .genre-sidebar {
+            order: -1;
+        }
+    }
+
+    /* Card Styles */
+    .card {
+        border: none;
+        box-shadow: var(--shadow-sm);
+        border-radius: 12px;
+        overflow: hidden;
+        background: var(--bg-card);
+        transition: box-shadow 0.3s;
+    }
+    
+    .card:hover {
+        box-shadow: var(--shadow-md);
+    }
+    
+    .card-header-custom {
+        background-color: #f8f9fa;
+        padding: 15px 25px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-header-custom i {
+        color: var(--primary-color);
+    }
+    
+    .card-body {
+        padding: 25px;
+    }
+
+    /* Form Styles */
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 8px;
+        display: block;
+        color: var(--text-main);
+    }
+    
+    .input-icon-wrapper {
+        position: relative;
+    }
+    
+    .input-icon {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+    
+    .form-control.with-icon {
+        padding-left: 40px;
+    }
+    
+    .form-text {
+        font-size: 0.85rem;
+        margin-top: 8px;
+        display: block;
+    }
+    
+    .btn-block {
+        display: block;
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: 8px;
+    }
+
+    /* Mini Stat Card */
+    .stat-mini-card {
+        margin-top: 20px;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+        color: white;
+    }
+    
+    .stat-icon-wrapper {
+        background: rgba(255,255,255,0.2);
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+    
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-value {
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+    
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    /* Table Styles */
+    .table {
+        margin-bottom: 0;
+    }
+    
+    .table th {
+        border-top: none;
+        background-color: #fcfcfc;
+        color: var(--text-muted);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 15px 25px;
+    }
+    
+    .table td {
+        padding: 15px 25px;
+        vertical-align: middle;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .id-badge {
+        font-family: monospace;
+        color: var(--text-muted);
+        background: var(--bg-light);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+    
+    .genre-badge-lg {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: var(--bg-light);
+        color: var(--text-main);
+        border-radius: 50px;
+        font-weight: 500;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        transition: all 0.2s;
+    }
+    
+    .table tr:hover .genre-badge-lg {
+        background-color: white;
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(229, 9, 20, 0.1);
+    }
+    
+    .movie-count {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--text-muted);
+        font-weight: 500;
+    }
+    
+    .movie-count i {
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+    }
+
+    /* Action Buttons */
+    .action-btn-circle {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        background: white;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .action-btn-circle:hover:not([disabled]) {
+        background-color: #fff5f5;
+        border-color: var(--danger-color);
+        color: var(--danger-color);
+        transform: scale(1.1);
+    }
+    
+    .action-btn-circle[disabled] {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background-color: #f9f9f9;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px !important;
+        color: var(--text-muted);
+    }
+    
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 15px;
+        opacity: 0.2;
+    }
+</style>
+{% endblock %}

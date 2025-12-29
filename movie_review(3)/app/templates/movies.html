@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Browse Movies - Movie Review{% endblock %}
+
+{% block content %}
+<section aria-labelledby="browse-heading">
+    <h1 id="browse-heading">Browse Movies</h1>
+
+    <!-- Search and Filter Form -->
+    <form action="{{ url_for('main.movies') }}" method="get" class="search-form" aria-label="Search and Filter Movies" role="search">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="q">Search</label>
+                <input type="text" name="q" id="q" placeholder="Title or Director..." value="{{ search_query }}">
+            </div>
+            <div class="form-group">
+                <label for="genre">Genre</label>
+                <select name="genre" id="genre">
+                    <option value="">All Genres</option>
+                    {% for genre in genres %}
+                    <option value="{{ genre.id }}" {% if current_genre == genre.id %}selected{% endif %}>{{ genre.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="year_min">Year From</label>
+                <input type="number" name="year_min" id="year_min" placeholder="Min Year" value="{{ year_min if year_min else '' }}">
+            </div>
+            <div class="form-group">
+                <label for="year_max">Year To</label>
+                <input type="number" name="year_max" id="year_max" placeholder="Max Year" value="{{ year_max if year_max else '' }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="sort_by">Sort By</label>
+                <select name="sort_by" id="sort_by">
+                    <option value="rating" {% if sort_by == 'rating' %}selected{% endif %}>Rating</option>
+                    <option value="year" {% if sort_by == 'year' %}selected{% endif %}>Year</option>
+                    <option value="favorites" {% if sort_by == 'favorites' %}selected{% endif %}>Favorites</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="order">Order</label>
+                <select name="order" id="order">
+                    <option value="desc" {% if order == 'desc' %}selected{% endif %}>Descending</option>
+                    <option value="asc" {% if order == 'asc' %}selected{% endif %}>Ascending</option>
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search & Filter</button>
+    </form>
+
+    <!-- Movies Grid -->
+    {% if movies.items %}
+    <div class="movie-grid">
+        {% for movie in movies.items %}
+        <article class="movie-card">
+            <a href="{{ url_for('main.movie', id=movie.id) }}">
+                <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster" loading="lazy">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span class="movie-rating" aria-label="Rating: {{ movie.average_rating }} out of 5">
+                            ★ {{ "%.1f"|format(movie.average_rating) }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Pagination" class="pagination">
+        {% if movies.has_prev %}
+        <a href="{{ url_for('main.movies', page=movies.prev_num, q=search_query, genre=current_genre, year_min=year_min, year_max=year_max, sort_by=sort_by, order=order) }}" class="btn btn-secondary">&laquo; Previous</a>
+        {% endif %}
+        
+        <span class="current-page" aria-current="page">Page {{ movies.page }} of {{ movies.pages }}</span>
+        
+        {% if movies.has_next %}
+        <a href="{{ url_for('main.movies', page=movies.next_num, q=search_query, genre=current_genre, year_min=year_min, year_max=year_max, sort_by=sort_by, order=order) }}" class="btn btn-secondary">Next &raquo;</a>
+        {% endif %}
+    </nav>
+    {% else %}
+    <p>No movies found matching your criteria.</p>
+    {% endif %}
+</section>
+{% endblock %}

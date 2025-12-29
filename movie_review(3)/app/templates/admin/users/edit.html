@@ -1,0 +1,49 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="page-header">
+    <a href="{{ url_for('admin.users_list') }}" style="color: var(--text-muted); text-decoration: none;">
+        <i class="fas fa-arrow-left"></i> Back to Users
+    </a>
+</div>
+
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="margin-bottom: 20px;">Edit User: {{ user.username }}</h2>
+    
+    <form method="post" class="form">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-group">
+            {{ form.username.label }}
+            {{ form.username(class="form-control") }}
+            {% for error in form.username.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.email.label }}
+            {{ form.email(class="form-control") }}
+            {% for error in form.email.errors %}
+            <span class="error-msg">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group" style="display: flex; gap: 20px; margin-top: 20px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                {{ form.is_admin() }}
+                {{ form.is_admin.label }}
+            </div>
+            
+            <div style="display: flex; align-items: center; gap: 10px;">
+                {{ form.is_active() }}
+                {{ form.is_active.label }}
+            </div>
+        </div>
+        
+        <div class="form-group" style="margin-top: 30px;">
+            {{ form.submit(class="btn-primary", style="width: 100%;") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

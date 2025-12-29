@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Movie Review{% endblock %}
+
+{% block content %}
+<section class="hero" aria-label="Welcome">
+    <h1>Welcome to Movie Review</h1>
+    <p>Discover, review, and share your favorite movies.</p>
+    <a href="{{ url_for('main.movies') }}" class="btn btn-primary">Browse Movies</a>
+</section>
+
+{% if current_user.is_authenticated and recommended_movies %}
+<section aria-labelledby="recommended-heading">
+    <h2 id="recommended-heading">Recommended for You</h2>
+    <div class="movie-grid">
+        {% for movie in recommended_movies %}
+        <article class="movie-card">
+            <a href="{{ url_for('main.movie', id=movie.id) }}">
+                <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster" loading="lazy">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span class="movie-rating" aria-label="Rating: {{ movie.average_rating }} out of 5">
+                            ★ {{ "%.1f"|format(movie.average_rating) }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<section aria-labelledby="leaderboard-heading" class="leaderboard-section">
+    <div class="section-header">
+        <h2 id="leaderboard-heading"><i class="fas fa-trophy" style="color: var(--primary-color); margin-right: 10px;"></i>Top 10 Movies Leaderboard</h2>
+    </div>
+    {% if top_rated_movies %}
+    <div class="movie-grid">
+        {% for movie in top_rated_movies %}
+        <article class="movie-card leaderboard-card">
+            <div class="rank-badge rank-{{ loop.index }}">{{ loop.index }}</div>
+            <a href="{{ url_for('main.movie', id=movie.id) }}">
+                <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster" loading="lazy">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span class="movie-rating" aria-label="Rating: {{ movie.average_rating }} out of 5">
+                            ★ {{ "%.1f"|format(movie.average_rating) }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No ratings yet.</p>
+    {% endif %}
+</section>
+
+<section aria-labelledby="latest-heading">
+    <h2 id="latest-heading">Latest Reviewed Movies</h2>
+    {% if latest_movies %}
+    <div class="movie-grid">
+        {% for movie in latest_movies %}
+        <article class="movie-card">
+            <a href="{{ url_for('main.movie', id=movie.id) }}">
+                <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster" loading="lazy">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span class="movie-rating" aria-label="Rating: {{ movie.average_rating }} out of 5">
+                            ★ {{ "%.1f"|format(movie.average_rating) }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p>No reviewed movies yet.</p>
+    {% endif %}
+{% endblock %}

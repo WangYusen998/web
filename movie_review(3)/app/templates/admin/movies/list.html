@@ -1,0 +1,403 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<style>
+    /* Filter Bar */
+    .filter-bar {
+        background-color: var(--bg-card);
+        padding: 24px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid var(--border-color);
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--text-main);
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control {
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        padding: 10px 16px;
+        border-radius: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        font-size: 14px;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        outline: none;
+    }
+
+    .btn-search {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 24px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.2s;
+        height: 40px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-search:hover {
+        background-color: var(--primary-hover);
+        transform: translateY(-1px);
+    }
+
+    /* Table Styles */
+    .card {
+        background-color: var(--bg-card);
+        border-radius: 12px;
+        padding: 0;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid var(--border-color);
+        overflow: hidden;
+    }
+
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table th {
+        padding: 16px 24px;
+        text-align: left;
+        color: var(--text-muted);
+        font-weight: 600;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--border-color);
+        background-color: #fafafa;
+    }
+
+    .table td {
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        color: var(--text-main);
+    }
+
+    .table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .table tr:hover td {
+        background-color: #f8f9fa;
+    }
+
+    /* Movie Specifics */
+    .movie-poster-cell {
+        width: 60px;
+    }
+
+    .movie-poster {
+        width: 48px;
+        height: 72px;
+        object-fit: cover;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .movie-poster-placeholder {
+        width: 48px;
+        height: 72px;
+        background-color: #f0f0f0;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ccc;
+        font-size: 20px;
+    }
+
+    .movie-info-cell {
+        min-width: 200px;
+    }
+
+    .movie-title {
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 15px;
+        margin-bottom: 4px;
+        display: block;
+    }
+
+    .movie-meta {
+        font-size: 13px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .genre-badge {
+        background-color: rgba(0,0,0,0.05);
+        color: var(--text-muted);
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 500;
+        display: inline-block;
+        margin-right: 4px;
+        margin-bottom: 4px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .rating-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .rating-badge i {
+        color: #ffc107;
+        font-size: 12px;
+    }
+
+    /* Actions */
+    .actions-cell {
+        display: flex;
+        gap: 6px;
+    }
+    
+    .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 13px;
+        background-color: transparent;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+        cursor: pointer;
+    }
+
+    .btn-edit:hover {
+        background-color: rgba(255, 193, 7, 0.1);
+        color: #ffc107;
+    }
+    
+    .btn-delete:hover {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .btn-add {
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: background-color 0.2s;
+    }
+    
+    .btn-add:hover {
+        background-color: var(--primary-hover);
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 30px;
+        gap: 8px;
+    }
+    
+    .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 8px;
+        background-color: #fff;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        color: var(--text-main);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s;
+    }
+    
+    .page-link:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .page-link.active {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+        color: white;
+    }
+</style>
+
+<div class="page-header">
+    <h1 class="page-title">Movie Management</h1>
+    <a href="{{ url_for('admin.movie_add') }}" class="btn-add">
+        <i class="fas fa-plus"></i> Add Movie
+    </a>
+</div>
+
+<div class="filter-bar">
+    <form method="get" class="filter-form">
+        <div class="form-group" style="flex: 2;">
+            <label for="q">Search</label>
+            {{ form.q(class="form-control", placeholder="Search title or director...", id="q") }}
+        </div>
+        <div class="form-group">
+            <label for="genre">Genre</label>
+            {{ form.genre(class="form-control", id="genre") }}
+        </div>
+        <div class="form-group">
+            <label for="year_min">From Year</label>
+            {{ form.year_min(class="form-control", placeholder="YYYY", id="year_min") }}
+        </div>
+        <div class="form-group">
+            <label for="year_max">To Year</label>
+            {{ form.year_max(class="form-control", placeholder="YYYY", id="year_max") }}
+        </div>
+        <div class="form-group" style="flex: 0; min-width: auto;">
+            <button type="submit" class="btn-search">
+                <i class="fas fa-search"></i> Search
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 80px;">Poster</th>
+                <th>Movie Info</th>
+                <th>Genres</th>
+                <th>Rating</th>
+                <th>Reviews</th>
+                <th style="width: 100px;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for movie in movies.items %}
+            <tr>
+                <td>
+                    {% if movie.poster_url %}
+                    <img src="{{ movie.poster_url }}" alt="Poster" class="movie-poster">
+                    {% else %}
+                    <div class="movie-poster-placeholder">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="movie-title">{{ movie.title }}</span>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span>•</span>
+                        <span>{{ movie.director }}</span>
+                    </div>
+                </td>
+                <td>
+                    {% for genre in movie.genres %}
+                    <span class="genre-badge">{{ genre.name }}</span>
+                    {% endfor %}
+                </td>
+                <td>
+                    <span class="rating-badge">
+                        <i class="fas fa-star"></i> {{ "%.1f"|format(movie.average_rating) }}
+                    </span>
+                </td>
+                <td>{{ movie.reviews.count() }}</td>
+                <td>
+                    <div class="actions-cell">
+                        <a href="{{ url_for('admin.movie_edit', id=movie.id) }}" class="action-btn btn-edit" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <form action="{{ url_for('admin.movie_delete', id=movie.id) }}" method="post" class="delete-form" style="display: inline;" data-confirm="Are you sure you want to delete this movie? This will also delete related reviews.">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="action-btn btn-delete" title="Delete">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <i class="fas fa-film" style="font-size: 48px; margin-bottom: 15px; opacity: 0.2;"></i>
+                    <p>No movies found.</p>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if movies.pages > 1 %}
+<div class="pagination">
+    {% if movies.has_prev %}
+    <a href="{{ url_for('admin.movies_list', page=movies.prev_num, q=request.args.get('q'), genre=request.args.get('genre'), year_min=request.args.get('year_min'), year_max=request.args.get('year_max')) }}" class="page-link">&laquo;</a>
+    {% endif %}
+    
+    {% for page_num in movies.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+        {% if page_num %}
+            {% if movies.page == page_num %}
+            <span class="page-link active">{{ page_num }}</span>
+            {% else %}
+            <a href="{{ url_for('admin.movies_list', page=page_num, q=request.args.get('q'), genre=request.args.get('genre'), year_min=request.args.get('year_min'), year_max=request.args.get('year_max')) }}" class="page-link">{{ page_num }}</a>
+            {% endif %}
+        {% else %}
+            <span class="page-link" style="border:none; background:transparent;">...</span>
+        {% endif %}
+    {% endfor %}
+    
+    {% if movies.has_next %}
+    <a href="{{ url_for('admin.movies_list', page=movies.next_num, q=request.args.get('q'), genre=request.args.get('genre'), year_min=request.args.get('year_min'), year_max=request.args.get('year_max')) }}" class="page-link">&raquo;</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

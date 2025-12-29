@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}{{ movie.title }} - Movie Review{% endblock %}
+
+{% block content %}
+<article class="movie-detail" aria-labelledby="movie-title">
+    <div class="movie-header">
+        <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster-large">
+        <div class="movie-info-large">
+            <h1 id="movie-title">{{ movie.title }} ({{ movie.year }})</h1>
+            <p class="director"><strong>Director:</strong> {{ movie.director }}</p>
+            <p class="genres">
+                <strong>Genres:</strong>
+                {% for genre in movie.genres %}
+                <span class="genre-tag">{{ genre.name }}</span>
+                {% endfor %}
+            </p>
+            <div class="rating-large" aria-label="Average rating: {{ movie.average_rating }} out of 5">
+                <span class="stars">★</span>
+                <span class="score">{{ "%.1f"|format(movie.average_rating) }}</span>
+                <span class="count">({{ reviews|length }} reviews)</span>
+            </div>
+            <p class="description">{{ movie.description }}</p>
+            
+            {% if current_user.is_authenticated %}
+            <!-- Favorite Button Placeholder (Backend logic needed for toggle) -->
+             <div class="actions">
+                <button id="favorite-btn" class="btn btn-secondary favorite-btn {% if movie in current_user.favorited_movies %}favorited{% endif %}" 
+                        data-movie-id="{{ movie.id }}"
+                        aria-pressed="{% if movie in current_user.favorited_movies %}true{% else %}false{% endif %}">
+                    {% if movie in current_user.favorited_movies %}
+                    ❤️ Favorited
+                    {% else %}
+                    🤍 Add to Favorites
+                    {% endif %}
+                </button>
+                <button id="download-btn" class="btn btn-primary download-btn" 
+                        data-movie-title="{{ movie.title }}">
+                    ⬇️ Download
+                </button>
+             </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <section class="reviews-section" aria-labelledby="reviews-heading">
+        <h2 id="reviews-heading">Reviews</h2>
+        
+        {% if current_user.is_authenticated %}
+        <div class="add-review">
+            <h3 id="write-review-heading">Write a Review</h3>
+            <form action="{{ url_for('main.add_review', id=movie.id) }}" method="post" aria-labelledby="write-review-heading">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="star-rating">
+                        {% for i in range(5, 0, -1) %}
+                        <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" required>
+                        <label for="star{{ i }}" title="{{ i }} stars">★</label>
+                        {% endfor %}
+                    </div>
+                    {% if form.rating.errors %}
+                    <span id="rating-error" class="text-danger">
+                        {% for error in form.rating.errors %}{{ error }}{% endfor %}
+                    </span>
+                    {% endif %}
+                </div>
+                <div class="form-group">
+                    {{ form.content.label }}
+                    {% set content_kwargs = {'class': 'form-control', 'rows': 4} %}
+                    {% if form.content.errors %}
+                        {% set _ = content_kwargs.update({'aria-describedby': 'content-error'}) %}
+                    {% endif %}
+                    {{ form.content(**content_kwargs) }}
+                    {% if form.content.errors %}
+                    <span id="content-error" class="text-danger">
+                        {% for error in form.content.errors %}{{ error }}{% endfor %}
+                    </span>
+                    {% endif %}
+                </div>
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+        </div>
+        {% else %}
+        <p><a href="{{ url_for('main.login', next=request.path) }}">Log in</a> to write a review.</p>
+        {% endif %}
+
+        <div class="reviews-list">
+            {% for review in reviews %}
+            <div class="review-card">
+                <div class="review-header">
+                    <strong>{{ review.author.username }}</strong>
+                    <span class="review-rating" aria-label="Rated {{ review.rating }} stars">
+                        {% for i in range(1, 6) %}
+                            {% if i <= review.rating %}
+                                <span class="star filled">★</span>
+                            {% else %}
+                                <span class="star empty">☆</span>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                    <span class="review-date">{{ review.created_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+                <div class="review-content">
+                    <p>{{ review.content }}</p>
+                </div>
+            </div>
+            {% else %}
+            <p>No reviews yet. Be the first to review!</p>
+            {% endfor %}
+        </div>
+    </section>
+</article>
+{% endblock %}

@@ -1,0 +1,11 @@
+[2025-12-26 02:55:18] [INFO] [DB] [DB] 评论添加 - ID:64, 电影:The Dark Knight, 用户:kb24, 评分:1, IP:127.0.0.1
+[2025-12-26 03:02:06] [INFO] [DB] [DB] 收藏添加 - 电影:The Lord of the Rings: The Fellowship of the Ring, 用户:kb24, IP:127.0.0.1
+[2025-12-26 03:07:38] [INFO] [DB] [DB] 电影添加 - 标题:送你一朵小红花, 操作者:kb24, IP:127.0.0.1
+[2025-12-26 03:09:22] [INFO] [DB] [DB] 评论添加 - ID:65, 电影:送你一朵小红花, 用户:kb24, 评分:5, IP:127.0.0.1
+[2025-12-26 03:22:41] [INFO] [DB] [DB] 收藏添加 - 电影:Goodfellas, 用户:kb24, IP:127.0.0.1
+[2025-12-26 15:18:55] [INFO] [DB] [DB] 收藏添加 - 电影:The Lord of the Rings: The Fellowship of the Ring, 用户:admin, IP:127.0.0.1
+[2025-12-26 15:19:01] [WARNING] [DB] [DB] 收藏删除 - 电影:The Lord of the Rings: The Fellowship of the Ring, 用户:admin, IP:127.0.0.1
+[2025-12-26 15:19:24] [INFO] [DB] [DB] 收藏添加 - 电影:Goodfellas, 用户:admin, IP:127.0.0.1
+[2025-12-26 15:19:40] [INFO] [DB] [DB] 收藏添加 - 电影:The Shawshank Redemption, 用户:admin, IP:127.0.0.1
+[2025-12-26 15:19:48] [INFO] [DB] [DB] 收藏添加 - 电影:Titanic, 用户:admin, IP:127.0.0.1
+[2025-12-26 15:21:22] [INFO] [DB] [DB] 收藏添加 - 电影:731, 用户:admin, IP:127.0.0.1

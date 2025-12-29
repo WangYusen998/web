@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Movie Reviews</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-film" style="margin-right: 10px;"></i> <span>ADMIN PANEL</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ url_for('admin.index') }}" class="nav-link {% if request.endpoint == 'admin.index' %}active{% endif %}">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.users_list') }}" class="nav-link {% if 'users' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-users"></i> Users
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.movies_list') }}" class="nav-link {% if 'movie' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-video"></i> Movies
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.genres_list') }}" class="nav-link {% if 'genre' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-tags"></i> Genres
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.reviews_list') }}" class="nav-link {% if 'review' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-comments"></i> Reviews
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.logs_list') }}" class="nav-link {% if 'logs' in request.endpoint %}active{% endif %}">
+                    <i class="fas fa-file-alt"></i> System Logs
+                </a>
+            </li>
+            
+            <div class="nav-divider"></div>
+            
+            <li class="nav-item">
+                <a href="{{ url_for('main.index') }}" class="nav-link" target="_blank">
+                    <i class="fas fa-external-link-alt"></i> View Site
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ url_for('admin.logout') }}" class="nav-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <header class="header">
+            <div class="header-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <div class="header-title"></div>
+            <div class="header-user">
+                <div class="header-clock" id="clock"></div>
+                <div class="header-divider"></div>
+                <div class="user-profile">
+                    <div class="user-avatar">
+                        <img src="https://ui-avatars.com/api/?name={{ current_user.username }}&background=e50914&color=fff" alt="{{ current_user.username }}">
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name">{{ current_user.username }}</span>
+                        <span class="user-role">Administrator</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-wrapper">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+    <script>
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').textContent = now.toLocaleString();
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

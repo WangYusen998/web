@@ -1,0 +1,398 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<style>
+    /* Profile Header */
+    .profile-card {
+        background-color: var(--bg-card);
+        border-radius: 12px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        border: 1px solid var(--border-color);
+        display: flex;
+        align-items: flex-start;
+        gap: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
+    }
+
+    .profile-avatar {
+        flex-shrink: 0;
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 4px solid #fff;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .profile-info {
+        flex-grow: 1;
+    }
+
+    .profile-name {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin: 0 0 10px 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .profile-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        color: var(--text-muted);
+        font-size: 14px;
+        margin-bottom: 20px;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .meta-item i {
+        color: var(--text-muted);
+        opacity: 0.7;
+    }
+
+    /* Tabs */
+    .tab-container {
+        margin-bottom: 30px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-nav {
+        display: flex;
+        gap: 30px;
+    }
+
+    .tab-item {
+        padding: 15px 5px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        position: relative;
+        transition: color 0.2s;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .tab-item:hover {
+        color: var(--primary-color);
+    }
+
+    .tab-item.active {
+        color: var(--primary-color);
+    }
+
+    .tab-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: -1px;
+        left: 0;
+        right: 0;
+        height: 2px;
+        background-color: var(--primary-color);
+    }
+
+    /* Reviews */
+    .review-card {
+        background-color: var(--bg-card);
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .review-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .review-movie {
+        font-weight: 600;
+        font-size: 16px;
+        color: var(--text-main);
+    }
+
+    .review-rating {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: #ffc107;
+        font-weight: 700;
+        font-size: 14px;
+    }
+
+    .review-content {
+        color: var(--text-main);
+        line-height: 1.6;
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    .review-date {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* Favorites Grid */
+    .favorites-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 25px;
+    }
+
+    .favorite-card {
+        background-color: var(--bg-card);
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid var(--border-color);
+        transition: transform 0.2s, box-shadow 0.2s;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+
+    .favorite-poster {
+        width: 100%;
+        aspect-ratio: 2/3;
+        object-fit: cover;
+        background-color: #f0f0f0;
+    }
+
+    .favorite-info {
+        padding: 12px;
+    }
+
+    .favorite-title {
+        font-weight: 600;
+        font-size: 14px;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .favorite-year {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+    
+    /* Status Badges */
+    .status-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .status-active {
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+    }
+    
+    .status-active::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #28a745;
+    }
+
+    .status-banned {
+        background-color: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+    }
+    
+    .status-banned::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background-color: #dc3545;
+    }
+
+    .role-badge {
+        background-color: rgba(255, 193, 7, 0.15);
+        color: #b58900;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+</style>
+
+<div class="page-header">
+    <a href="{{ url_for('admin.users_list') }}" class="btn-icon" style="width: auto; padding-right: 10px; color: var(--text-muted);">
+        <i class="fas fa-arrow-left" style="margin-right: 8px;"></i> Back to Users
+    </a>
+</div>
+
+<!-- User Profile Header -->
+<div class="profile-card">
+    <div class="profile-avatar">
+        <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&color=fff&size=200" alt="{{ user.username }}">
+    </div>
+    <div class="profile-info">
+        <div class="profile-name">
+            {{ user.username }}
+            {% if user.is_admin %}
+            <span class="role-badge"><i class="fas fa-shield-alt"></i> Admin</span>
+            {% endif %}
+        </div>
+        
+        <div class="profile-meta">
+            <div class="meta-item">
+                <i class="fas fa-envelope"></i> {{ user.email }}
+            </div>
+            <div class="meta-item">
+                <i class="fas fa-calendar-alt"></i> Joined {{ user.created_at.strftime('%b %d, %Y') }}
+            </div>
+            <div class="meta-item">
+                <span class="status-badge {% if user.is_active %}status-active{% else %}status-banned{% endif %}">
+                    {{ 'Active' if user.is_active else 'Banned' }}
+                </span>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('admin.edit_user', id=user.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Edit User
+            </a>
+            <!-- You could add more actions here like Send Email, Ban User etc. -->
+        </div>
+    </div>
+</div>
+
+<!-- Tabs -->
+<div class="tab-container">
+    <div class="tab-nav">
+        <div class="tab-item active" onclick="showTab('reviews')">
+            <i class="fas fa-comment-alt" style="margin-right: 5px;"></i> Reviews ({{ reviews|length }})
+        </div>
+        <div class="tab-item" onclick="showTab('favorites')">
+            <i class="fas fa-heart" style="margin-right: 5px;"></i> Favorites ({{ favorites|length }})
+        </div>
+    </div>
+</div>
+
+<!-- Content Area -->
+<div id="reviews-tab">
+    {% if reviews %}
+        {% for review in reviews %}
+        <div class="review-card">
+            <div class="review-header">
+                <div class="review-movie">
+                    <i class="fas fa-film" style="color: var(--text-muted); margin-right: 8px;"></i>
+                    {{ review.movie.title }} <span style="font-weight: normal; color: var(--text-muted); font-size: 14px;">({{ review.movie.year }})</span>
+                </div>
+                <div class="review-rating">
+                    {{ review.rating }} <i class="fas fa-star"></i>
+                </div>
+            </div>
+            <div class="review-content">
+                {{ review.content }}
+            </div>
+            <div class="review-date">
+                <i class="far fa-clock"></i> {{ review.created_at.strftime('%B %d, %Y at %H:%M') }}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="far fa-comment-dots" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p>No reviews yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+<div id="favorites-tab" style="display: none;">
+    {% if favorites %}
+        <div class="favorites-grid">
+            {% for movie in favorites %}
+            <a href="{{ url_for('admin.movie_edit', id=movie.id) }}" class="favorite-card">
+                {% if movie.poster_url %}
+                <img src="{{ movie.poster_url }}" alt="{{ movie.title }}" class="favorite-poster">
+                {% else %}
+                <div class="favorite-poster" style="display: flex; align-items: center; justify-content: center; background: #333; color: #666;">
+                    <i class="fas fa-film" style="font-size: 32px;"></i>
+                </div>
+                {% endif %}
+                <div class="favorite-info">
+                    <div class="favorite-title">{{ movie.title }}</div>
+                    <div class="favorite-year">{{ movie.year }}</div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="card" style="text-align: center; padding: 40px; color: var(--text-muted);">
+            <i class="far fa-heart" style="font-size: 48px; margin-bottom: 15px; opacity: 0.5;"></i>
+            <p>No favorite movies yet.</p>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+function showTab(tabName) {
+    document.getElementById('reviews-tab').style.display = tabName === 'reviews' ? 'block' : 'none';
+    document.getElementById('favorites-tab').style.display = tabName === 'favorites' ? 'block' : 'none';
+    
+    const tabs = document.querySelectorAll('.tab-item');
+    // Assuming index 0 is reviews, 1 is favorites based on DOM order
+    if(tabName === 'reviews') {
+        tabs[0].classList.add('active');
+        tabs[1].classList.remove('active');
+    } else {
+        tabs[0].classList.remove('active');
+        tabs[1].classList.add('active');
+    }
+}
+</script>
+{% endblock %}

@@ -1,0 +1,411 @@
+{% extends "admin/base_admin.html" %}
+
+{% block content %}
+<div class="page-header">
+    <div style="display: flex; align-items: center; gap: 15px;">
+        <a href="{{ url_for('admin.movies_list') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="page-title">{{ title }}</h1>
+    </div>
+</div>
+
+<div class="movie-form-container">
+    <form method="post" class="form-grid">
+        {{ form.hidden_tag() }}
+        
+        <!-- Left Column: Main Info -->
+        <div class="form-main">
+            <!-- Basic Information Card -->
+            <div class="card form-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-info-circle"></i> Basic Information
+                </div>
+                
+                <div class="form-group">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-control", placeholder="e.g. Inception") }}
+                    {% for error in form.title.errors %}
+                    <span class="error-msg">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-row-custom">
+                    <div class="form-group">
+                        {{ form.year.label(class="form-label") }}
+                        {{ form.year(class="form-control", placeholder="YYYY") }}
+                        {% for error in form.year.errors %}
+                        <span class="error-msg">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                    <div class="form-group">
+                        {{ form.director.label(class="form-label") }}
+                        {{ form.director(class="form-control", placeholder="Director Name") }}
+                        {% for error in form.director.errors %}
+                        <span class="error-msg">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    {{ form.description.label(class="form-label") }}
+                    {{ form.description(class="form-control", rows=6, placeholder="Enter movie synopsis...") }}
+                    {% for error in form.description.errors %}
+                    <span class="error-msg">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Genres Card -->
+            <div class="card form-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-tags"></i> Genres
+                </div>
+                <div class="form-group">
+                    <div class="genre-selector">
+                        {% for subfield in form.genres %}
+                        <div class="genre-item">
+                            {{ subfield(class="genre-checkbox") }}
+                            {{ subfield.label(class="genre-label") }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% for error in form.genres.errors %}
+                    <span class="error-msg">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Column: Poster & Actions -->
+        <div class="form-sidebar">
+            <!-- Poster Card -->
+            <div class="card form-card poster-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-image"></i> Poster
+                </div>
+                
+                <div class="poster-preview-wrapper">
+                    <div class="poster-preview" id="poster-preview-container">
+                        <img id="poster-preview-img" src="" alt="Poster Preview">
+                        <div class="poster-placeholder" id="poster-placeholder">
+                            <i class="fas fa-film"></i>
+                            <p>No Poster Preview</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group" style="margin-top: 15px;">
+                    {{ form.poster_url.label(class="form-label") }}
+                    {{ form.poster_url(class="form-control", id="poster-url-input", placeholder="https://...") }}
+                    {% for error in form.poster_url.errors %}
+                    <span class="error-msg">{{ error }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Actions Card -->
+            <div class="card form-card actions-card">
+                <div class="card-header-custom">
+                    <i class="fas fa-cog"></i> Actions
+                </div>
+                <div class="action-buttons">
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="fas fa-save"></i> Save Movie
+                    </button>
+                    <a href="{{ url_for('admin.movies_list') }}" class="btn btn-secondary btn-block">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+    /* Page Layout */
+    .movie-form-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding-bottom: 40px;
+    }
+    
+    .form-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 30px;
+        align-items: start;
+    }
+    
+    @media (max-width: 992px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .form-sidebar {
+            order: -1; /* Show poster on top on mobile */
+        }
+    }
+    
+    /* Card Styles */
+    .form-card {
+        padding: 0;
+        overflow: hidden;
+        margin-bottom: 30px;
+        border: none;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .form-card:hover {
+        box-shadow: var(--shadow-md);
+    }
+    
+    .card-header-custom {
+        background-color: #f8f9fa;
+        padding: 15px 25px;
+        border-bottom: 1px solid var(--border-color);
+        font-weight: 600;
+        color: var(--text-main);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .card-header-custom i {
+        color: var(--primary-color);
+    }
+    
+    .form-card .form-group {
+        padding: 0 25px 20px;
+    }
+    
+    .form-card .form-group:first-of-type {
+        padding-top: 25px;
+    }
+
+    .form-row-custom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        padding: 0 25px;
+        align-items: start; /* Ensure top alignment */
+    }
+    
+    .form-row-custom .form-group {
+        padding: 0 0 20px 0 !important; /* Force override first-of-type padding */
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+        color: var(--text-main);
+        line-height: 1.5; /* Consistent line height for alignment */
+    }
+    
+    /* Input Styles */
+    .form-control {
+        width: 100%;
+        height: 48px; /* Fixed height to ensure alignment across different input types */
+        padding: 10px 15px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1rem;
+        line-height: 1.5;
+        transition: all 0.2s;
+        box-sizing: border-box;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(229, 9, 20, 0.1);
+        outline: none;
+    }
+    
+    textarea.form-control {
+        resize: vertical;
+        min-height: 120px;
+        height: auto; /* Reset height for textarea */
+        padding: 12px 15px;
+    }
+    
+    /* Genre Selector Styles */
+    .genre-selector {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .genre-checkbox {
+        display: none; /* Hide default checkbox */
+    }
+    
+    .genre-label {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: var(--bg-light);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        transition: all 0.2s;
+        user-select: none;
+    }
+    
+    .genre-label:hover {
+        background-color: #e9ecef;
+        border-color: #adb5bd;
+    }
+    
+    .genre-checkbox:checked + .genre-label {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 4px rgba(229, 9, 20, 0.3);
+    }
+    
+    /* Poster Preview Styles */
+    .poster-preview-wrapper {
+        padding: 25px;
+        background-color: var(--bg-light);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 300px;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    .poster-preview {
+        width: 100%;
+        max-width: 200px;
+        aspect-ratio: 2/3;
+        background-color: #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    
+    #poster-preview-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: none;
+    }
+    
+    .poster-placeholder {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-muted);
+        text-align: center;
+        padding: 20px;
+    }
+    
+    .poster-placeholder i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+    
+    /* Action Buttons */
+    .action-buttons {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-block {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 12px;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+    
+    .btn-back {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-main);
+        text-decoration: none;
+        box-shadow: var(--shadow-sm);
+        transition: all 0.2s;
+    }
+    
+    .btn-back:hover {
+        background-color: var(--primary-color);
+        color: white;
+        transform: translateX(-3px);
+    }
+    
+    .error-msg {
+        color: var(--danger-color);
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: block;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const posterInput = document.getElementById('poster-url-input');
+        const posterImg = document.getElementById('poster-preview-img');
+        const posterPlaceholder = document.getElementById('poster-placeholder');
+        
+        function updatePoster() {
+            const url = posterInput.value.trim();
+            if (url) {
+                // Create a temporary image to test loading
+                const tempImg = new Image();
+                tempImg.onload = function() {
+                    posterImg.src = url;
+                    posterImg.style.display = 'block';
+                    posterPlaceholder.style.display = 'none';
+                };
+                tempImg.onerror = function() {
+                    showPlaceholder();
+                };
+                tempImg.src = url;
+            } else {
+                showPlaceholder();
+            }
+        }
+        
+        function showPlaceholder() {
+            posterImg.style.display = 'none';
+            posterPlaceholder.style.display = 'flex';
+        }
+        
+        // Initial check
+        updatePoster();
+        
+        // Listen for changes
+        posterInput.addEventListener('input', function() {
+            // Debounce slightly if needed, but for now instant is fine
+            updatePoster();
+        });
+        
+        // Also update on blur to be safe
+        posterInput.addEventListener('blur', updatePoster);
+    });
+</script>
+{% endblock %}

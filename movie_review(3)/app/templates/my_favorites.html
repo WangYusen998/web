@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}My Favorites - Movie Review{% endblock %}
+
+{% block content %}
+<section aria-labelledby="favorites-heading">
+    <h1 id="favorites-heading">My Favorites</h1>
+
+    {% if favorites %}
+    <div class="movie-grid">
+        {% for movie in favorites %}
+        <article class="movie-card">
+            <a href="{{ url_for('main.movie', id=movie.id) }}">
+                <img src="{{ movie.poster_url }}" alt="Poster for {{ movie.title }}" class="movie-poster" loading="lazy">
+                <div class="movie-info">
+                    <h3 class="movie-title">{{ movie.title }}</h3>
+                    <div class="movie-meta">
+                        <span>{{ movie.year }}</span>
+                        <span class="movie-rating" aria-label="Rating: {{ movie.average_rating }} out of 5">
+                            ★ {{ "%.1f"|format(movie.average_rating) }}
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>You haven't favorited any movies yet.</p>
+        <a href="{{ url_for('main.movies') }}" class="btn btn-primary">Browse Movies</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

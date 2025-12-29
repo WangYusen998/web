@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}My Reviews - Movie Review{% endblock %}
+
+{% block content %}
+<section aria-labelledby="reviews-heading" class="my-reviews-section">
+    <h1 id="reviews-heading">My Reviews</h1>
+
+    {% if reviews %}
+    <div class="reviews-list">
+        {% for review in reviews %}
+        <article class="review-card my-review-card">
+            <div class="review-poster">
+                <a href="{{ url_for('main.movie', id=review.movie.id) }}">
+                    {% if review.movie.poster_url %}
+                    <img src="{{ review.movie.poster_url }}" alt="{{ review.movie.title }}" loading="lazy">
+                    {% else %}
+                    <div class="poster-placeholder">
+                        <i class="fas fa-film"></i>
+                    </div>
+                    {% endif %}
+                </a>
+            </div>
+            <div class="review-details">
+                <div class="review-header">
+                    <h3><a href="{{ url_for('main.movie', id=review.movie.id) }}">{{ review.movie.title }}</a></h3>
+                    <span class="review-rating" aria-label="Rating: {{ review.rating }} out of 5">
+                        {% for i in range(review.rating) %}★{% endfor %}{% for i in range(5 - review.rating) %}☆{% endfor %}
+                    </span>
+                </div>
+                <div class="review-meta">
+                    <span class="review-date">Reviewed on {{ review.created_at.strftime('%Y-%m-%d') }}</span>
+                </div>
+                <div class="review-content">
+                    <p>{{ review.content }}</p>
+                </div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>You haven't written any reviews yet.</p>
+        <a href="{{ url_for('main.movies') }}" class="btn btn-primary">Browse Movies</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}
